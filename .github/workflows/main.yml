@@ -21,7 +21,7 @@ jobs:
 
       - name: Build, test and analyze with SonarCloud
         run: |
-          mvn -B verify sonar:sonar -Dsonar.projectKey=Charlotterib_DevOps -Dsonar.organization=charlotterib -Dsonar.host.url=[https://sonarcloud.io](https://sonarcloud.io) -Dsonar.login=${{ secrets.SONAR_TOKEN }} --file DevOps_TP1/tp-devops-correction-docker/simple-api/pom.xml
+          mvn -B verify sonar:sonar -Dsonar.projectKey=Charlotterib_DevOps -Dsonar.organization=charlotterib -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} --file DevOps_TP1/tp-devops-correction-docker/simple-api/pom.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
