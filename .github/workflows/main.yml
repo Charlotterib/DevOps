@@ -19,6 +19,17 @@ jobs:
           distribution: "corretto"
           java-version: "21"
 
+      - name: Build, test and analyze with SonarCloud
+        run: |
+          mvn -B verify sonar:sonar \
+            -Dsonar.projectKey=charlotterib_devops \
+            -Dsonar.organization=charlotterib \
+            -Dsonar.host.url=[https://sonarcloud.io](https://sonarcloud.io) \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }} \
+            --file DevOps_TP1/tp-devops-correction-docker/simple-api/pom.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
      #finally build your app with the latest command
       - name: Build and test with Maven
         run: mvn clean verify --file DevOps_TP1/tp-devops-correction-docker/simple-api/pom.xml
