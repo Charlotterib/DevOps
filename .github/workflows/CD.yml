@@ -27,7 +27,7 @@ jobs:
           tags:  ${{secrets.DOCKERHUB_USERNAME}}/tp-devops-simple-api:latest
 
   build-backend:
-    needs: build-database
+    needs: sonar-analysis
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
@@ -47,7 +47,7 @@ jobs:
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-simple-api:latest
     
   build-httpd:
-    needs: build-database
+    needs: sonar-analysis
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout code
