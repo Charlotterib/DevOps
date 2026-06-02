@@ -4,6 +4,9 @@ on:
     branches:  [main]
 
 jobs:
+  trigger-ci:
+    uses: ./.github/workflows/main.yml
+
   build-database:
     needs: sonar-analysis
     runs-on: ubuntu-24.04
