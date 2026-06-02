@@ -22,7 +22,7 @@ jobs:
       - name: Build and test with Maven
         run: mvn clean verify --file DevOps_TP1/tp-devops-correction-docker/simple-api/pom.xml
 
-sonar-analysis:
+  sonar-analysis:
     needs: test-backend
     runs-on: ubuntu-24.04
     steps:
@@ -39,14 +39,8 @@ sonar-analysis:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # define job to build and publish docker image
-build-and-push-docker-image:
-    needs: test-backend
-    # run only when code is compiling and tests are passing
-    runs-on: ubuntu-24.04
-
     # steps to perform in job
-build-database:
+  build-database:
     needs: sonar-analysis
     runs-on: ubuntu-24.04
     steps:
@@ -68,7 +62,7 @@ build-database:
           # Note: tags has to be all lower-case
           tags:  ${{secrets.DOCKERHUB_USERNAME}}/tp-devops-simple-api:latest
 
-build-backend:
+  build-backend:
     needs: build-database
     runs-on: ubuntu-24.04
     steps:
@@ -88,7 +82,7 @@ build-backend:
           push: ${{ github.ref == 'refs/heads/main' }} 
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-simple-api:latest
     
-      build-httpd:
+  build-httpd:
     needs: build-backend
     runs-on: ubuntu-24.04
     steps:
