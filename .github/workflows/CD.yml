@@ -1,0 +1,67 @@
+name: CD devops 2025
+on:
+  push:
+    branches:  [main]
+
+jobs:
+  build-database:
+    needs: sonar-analysis
+    runs-on: ubuntu-24.04
+    steps:
+     - name: Checkout code
+       uses: actions/checkout@v
+      
+     - name: Login to Docker Hub
+       uses: docker/login-action@v3
+       with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+     - name: Build image and push backend
+       uses: docker/build-push-action@v6
+       with:
+          # relative path to the place where source code with Dockerfile is located
+          context: DevOps_TP1/tp-devops-correction-docker/simple-api
+          push: true
+          # Note: tags has to be all lower-case
+          tags:  ${{secrets.DOCKERHUB_USERNAME}}/tp-devops-simple-api:latest
+
+  build-backend:
+    needs: build-database
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image and push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: DevOps_TP1/tp-devops-correction-docker/simple-api
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-simple-api:latest
+    
+  build-httpd:
+    needs: build-database
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image and push httpd
+        uses: docker/build-push-action@v6
+        with:
+          context: DevOps_TP1/tp-devops-correction-docker/http-server
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-httpd:latest
