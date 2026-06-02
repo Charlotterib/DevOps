@@ -18,26 +18,38 @@ jobs:
         with:
           distribution: "corretto"
           java-version: "21"
-
-      - name: Build, test and analyze with SonarCloud
-        run: |
-          mvn -B verify sonar:sonar -Dsonar.projectKey=Charlotterib_DevOps -Dsonar.organization=charlotterib -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} --file DevOps_TP1/tp-devops-correction-docker/simple-api/pom.xml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-     #finally build your app with the latest command
+      #finally build your app with the latest command
       - name: Build and test with Maven
         run: mvn clean verify --file DevOps_TP1/tp-devops-correction-docker/simple-api/pom.xml
 
+sonar-analysis:
+    needs: test-backend
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: "corretto"
+          java-version: "21"
+
+      - name: Run SonarCloud Analysis
+        run: mvn -B verify sonar:sonar -Dsonar.projectKey=Charlotterib_DevOps -Dsonar.organization=charlotterib -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }} --file DevOps_TP1/tp-devops-correction-docker/simple-api/pom.xml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   # define job to build and publish docker image
-  build-and-push-docker-image:
+build-and-push-docker-image:
     needs: test-backend
     # run only when code is compiling and tests are passing
     runs-on: ubuntu-24.04
 
     # steps to perform in job
+build-database:
+    needs: sonar-analysis
+    runs-on: ubuntu-24.04
     steps:
-
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -56,12 +68,38 @@ jobs:
           # Note: tags has to be all lower-case
           tags:  ${{secrets.DOCKERHUB_USERNAME}}/tp-devops-simple-api:latest
 
-      - name: Build image and push database
+build-backend:
+    needs: build-database
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build image and push backend
         uses: docker/build-push-action@v6
         with:
-          context: DevOps_TP1/tp-devops-correction-docker/database
-          push: ${{ github.ref == 'refs/heads/main' }}
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-database:latest
+          context: DevOps_TP1/tp-devops-correction-docker/simple-api
+          push: ${{ github.ref == 'refs/heads/main' }} 
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-simple-api:latest
+    
+      build-httpd:
+    needs: build-backend
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build image and push httpd
         uses: docker/build-push-action@v6
