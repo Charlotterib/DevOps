@@ -10,7 +10,7 @@
     env:
       # Ajuste le nom de la variable selon ce que demande ton code Java/Spring
       # Note l'utilisation du nom du conteneur "database" dans l'URL
-      SPRING_DATASOURCE_URL: "jdbc:postgresql://database:5432/db"
-      SPRING_DATASOURCE_USERNAME: "usr"
-      SPRING_DATASOURCE_PASSWORD: "pwd"
+      SPRING_DATASOURCE_URL: {{SPRING_DATASOURCE_URL}}
+      SPRING_DATASOURCE_USERNAME: {{SPRING_DATASOURCE_USERNAME}}
+      SPRING_DATASOURCE_PASSWORD: {{SPRING_DATASOURCE_PASSWORD}}
     restart_policy: always

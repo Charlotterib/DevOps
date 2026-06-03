@@ -9,9 +9,9 @@
       - name: app-network
     env:
       # Reprends exactement les mêmes variables et valeurs que ton docker-compose
-      POSTGRES_DB: db
-      POSTGRES_USER: usr
-      POSTGRES_PASSWORD: pwd
+      POSTGRES_DB: "{{ POSTGRES_DB }}"
+      POSTGRES_USER: "{{ POSTGRES_USER }}"
+      POSTGRES_PASSWORD: "{{ POSTGRES_PASSWORD }}"
     volumes:
       - db-data:/var/lib/postgresql/data # 💾 Permet de ne pas perdre tes données si le conteneur redémarre
     restart_policy: always
