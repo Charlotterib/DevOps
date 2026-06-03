@@ -91,7 +91,7 @@ jobs:
           sudo apt-get install -y ansible
 
       - name: Run Ansible Playbook
-        run: ansible-playbook -i DevOps/ansible/inventories/setup.yml DevOps/ansible/playbook.yml
+        run: ansible-playbook -i DevOps_TP1/ansible/inventories/setup.yml DevOps_TP1/ansible/playbook.yml
         env:
           ANSIBLE_HOST_KEY_CHECKING: 'false'
         
