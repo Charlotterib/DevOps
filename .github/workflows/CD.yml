@@ -22,6 +22,7 @@ jobs:
      - name: Build image and push database
        uses: docker/build-push-action@v6
        with:
+          # Corrigé ici : on pointe bien vers le dossier database
           context: DevOps_TP1/tp-devops-correction-docker/database
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-database:latest
@@ -64,24 +65,30 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-httpd:latest
 
+  # LE NOUVEAU JOB DE DÉPLOIEMENT
   deploy:
+    # On lui dit d'attendre que les 3 builds précédents soient terminés et réussis
     needs: [build-database, build-backend, build-httpd]
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # On récupère ta clé privée stockée dans tes secrets GitHub
       - name: Set up SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+      # On installe Ansible sur la machine temporaire de GitHub
       - name: Install Ansible
         run: |
           sudo apt-get update
           sudo apt-get install -y ansible
 
+      # On lance enfin le Playbook magique
       - name: Run Ansible Playbook
         run: ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml
         env:
