@@ -68,6 +68,7 @@ jobs:
   deploy:
     needs: [build-database, build-backend, build-httpd]
     runs-on: ubuntu-latest
+    environment: Production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
