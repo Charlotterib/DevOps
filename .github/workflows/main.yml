@@ -40,26 +40,3 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-deploy:
-    needs: [build-and-push-docker-images] # Attend que les images soient bien sur le Docker Hub
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-      - name: Install Ansible
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ansible
-
-      - name: Run Ansible Playbook
-        run: ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml
-        env:
-          ANSIBLE_HOST_KEY_CHECKING: 'false' #  Évite que GitHub bloque en demandant "Voulez-vous faire confiance à ce serveur ?"
