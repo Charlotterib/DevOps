@@ -6,8 +6,6 @@ on:
     types:
       - completed
 
-
-
 jobs:
   build-database:
     runs-on: ubuntu-24.04
@@ -21,14 +19,13 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-     - name: Build image and push backend
+     - name: Build image and push database
        uses: docker/build-push-action@v6
        with:
-          # relative path to the place where source code with Dockerfile is located
-          context: DevOps_TP1/tp-devops-correction-docker/simple-api
+          # Corrigé ici : on pointe bien vers le dossier database
+          context: DevOps_TP1/tp-devops-correction-docker/database
           push: true
-          # Note: tags has to be all lower-case
-          tags:  ${{secrets.DOCKERHUB_USERNAME}}/tp-devops-simple-api:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-database:latest
 
   build-backend:
     runs-on: ubuntu-24.04
@@ -67,3 +64,32 @@ jobs:
           context: DevOps_TP1/tp-devops-correction-docker/http-server
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/tp-devops-httpd:latest
+
+  # LE NOUVEAU JOB DE DÉPLOIEMENT
+  deploy:
+    # On lui dit d'attendre que les 3 builds précédents soient terminés et réussis
+    needs: [build-database, build-backend, build-httpd]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # On récupère ta clé privée stockée dans tes secrets GitHub
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      # On installe Ansible sur la machine temporaire de GitHub
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      # On lance enfin le Playbook magique
+      - name: Run Ansible Playbook
+        run: ansible-playbook -i ansible/inventories/setup.yml ansible/playbook.yml
+        env:
+          ANSIBLE_HOST_KEY_CHECKING: 'false'
