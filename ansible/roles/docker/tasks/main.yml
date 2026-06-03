@@ -1,0 +1,40 @@
+---
+# 1. On installe les outils nécessaires
+- name: Install required system packages
+  apt:
+    pkg:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+    state: present
+    update_cache: yes
+
+# 2. On télécharge la clé GPG officielle de Docker pour DEBIAN
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: https://download.docker.com/linux/debian/gpg
+    state: present
+
+# 3. On indique à ton serveur d'utiliser le dépôt DEBIAN
+- name: Add Docker Repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ ansible_facts['distribution_release'] }} stable"
+    state: present
+
+# 4. On installe enfin Docker !
+- name: Update apt and install docker-ce
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: present
+    update_cache: yes
+
+# 5. On s'assure que Docker tourne
+- name: Ensure docker is running
+  service:
+    name: docker
+    state: started
+    enabled: yes
