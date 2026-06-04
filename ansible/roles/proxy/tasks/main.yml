@@ -4,7 +4,7 @@
 - name: Run HTTPD Proxy
   docker_container:
     name: httpd
-    image: charlotterib/tp-devops-httpd:latest
+    image: "{{ DOCKERHUB_USERNAME }}/tp-devops-httpd:latest"
     ports:
       - "80:80" # 🌍 Ouvre l'accès depuis ton navigateur
     networks:
