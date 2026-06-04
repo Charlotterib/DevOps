@@ -90,6 +90,20 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ansible
 
+      - name: Install Ansible
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible
+
+      # 🔍 Étape temporaire ajoutée pour espionner les dossiers de GitHub
+      - name: List files to find playbook
+        run: |
+          echo "--- OÙ SUIS-JE ? ---"
+          pwd
+          echo "--- LISTE DES DOSSIERS ---"
+          ls -R
+
+      # 🎬 Ton étape Ansible (qui va peut-être couper, mais c'est normal pour le test)
       - name: Run Ansible Playbook
         run: ansible-playbook -i DevOps_TP1/ansible/inventories/setup.yml DevOps_TP1/ansible/playbook.yml
         env:
